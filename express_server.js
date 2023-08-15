@@ -15,3 +15,10 @@ app.get("/", (req, res) => {  //registers a handler on the root path, "/".
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+app.get("/urls.json", (req, res) => {
+    res.json(urlDatabase);
+  });     // when run on "http://localhost:8080/urls.json", we see JSON string representing the entire urlDatabase object
+         // "{"b2xVn2":"http://www.lighthouselabs.ca","9sm5xK":"http://www.google.com"}"
+
+         
