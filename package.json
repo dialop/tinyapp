@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/dialop/tinyapp/issues"
   },
-  "homepage": "https://github.com/dialop/tinyapp#readme"
+  "homepage": "https://github.com/dialop/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
