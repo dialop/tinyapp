@@ -2,22 +2,18 @@
   "name": "tinyapp",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "express_server.js",
   "scripts": {
+    "start": "./node_modules/.bin/nodemon -L express_server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/dialop/tinyapp.git"
-  },
-  "keywords": [],
-  "author": "",
+  "author": "dianalop1998@gmail.com",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/dialop/tinyapp/issues"
-  },
-  "homepage": "https://github.com/dialop/tinyapp#readme",
   "dependencies": {
-    "express": "^4.18.2"
+    "ejs": "^3.1.8",
+    "express": "^4.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.16"
   }
 }
