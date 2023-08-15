@@ -17,8 +17,11 @@ app.listen(PORT, () => {
 });
 
 app.get("/urls.json", (req, res) => {
-    res.json(urlDatabase);
-  });     // when run on "http://localhost:8080/urls.json", we see JSON string representing the entire urlDatabase object
-         // "{"b2xVn2":"http://www.lighthouselabs.ca","9sm5xK":"http://www.google.com"}"
+  res.json(urlDatabase);
+});     // when run on "http://localhost:8080/urls.json", we see JSON string representing the entire urlDatabase object
+         
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
 
          
