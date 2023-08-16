@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
-app.set("view engine", "ejs") 
+app.set("view engine", "ejs");
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -26,4 +26,13 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-         
+app.get("/urls", (req, res) => {                   // code to set up the /urls route and render the "urls_index.ejs" template
+  const templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars);
+});
+  
+app.get("/urls/:id", (req, res) => {            //code to set up the /urls/:id route and render the "urls_show.ejs" template
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+  res.render("urls_show", templateVars);
+});
+   
