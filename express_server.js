@@ -10,6 +10,27 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+function generateRandomString(length) {
+  const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters[randomIndex];
+  
+  }
+  return result;
+}
+
+//Middleware
+app.use(express.urlencoded({ extended: true }));
+
+app.post("/urls", (req, res) => {
+  console.log(req.body); // Log the POST request body to the console
+  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+});
+
+// Routes
 app.get("/", (req, res) => {  //registers a handler on the root path, "/".
   res.send("Hello!");   //This shows up when you go to " http://localhost:8080/"
 });
@@ -34,9 +55,8 @@ app.get("/urls", (req, res) => {                   // code to set up the /urls r
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
-  
+
 app.get("/urls/:id", (req, res) => {            //code to set up the /urls/:id route and render the "urls_show.ejs" template
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
-   
