@@ -30,6 +30,10 @@ app.get("/urls", (req, res) => {                   // code to set up the /urls r
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
+
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
   
 app.get("/urls/:id", (req, res) => {            //code to set up the /urls/:id route and render the "urls_show.ejs" template
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
