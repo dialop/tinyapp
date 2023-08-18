@@ -17,7 +17,7 @@ function generateRandomString(length) {
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
     result += characters[randomIndex];
-  
+    
   }
   return result;
 }
@@ -28,6 +28,12 @@ app.use(express.urlencoded({ extended: true }));
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
   res.send("Ok"); // Respond with 'Ok' (we will replace this)
+});
+
+app.post("/urls/:id/delete", (req, res) => {      // code to implement a DELETE operation to remove existing shortened URLs
+  const shortURL = req.params.id;
+  delete urlDatabase[shortURL];
+  res.redirect("/urls");
 });
 
 // Routes
@@ -61,13 +67,14 @@ app.get("/urls/:id", (req, res) => {            //code to set up the /urls/:id r
   res.render("urls_show", templateVars);
 });
 
-app.get("/u/:id", (req, res) => {
+app.get("/u/:id", (req, res) => {              //code to implement short URL
   const shortURL = req.params.id;
   const longURL = urlDatabase[shortURL];
 
   if (longURL) {
-    res.redirect(longURL); 
+    res.redirect(longURL);
   } else {
     res.statusCode(404).send("Short URL not found");
   }
+
 });
