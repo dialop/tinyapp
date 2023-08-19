@@ -22,6 +22,11 @@ function generateRandomString(length) {
   return result;
 }
 
+
+
+
+
+
 //Middleware
 app.use(express.urlencoded({ extended: true }));
 
@@ -46,6 +51,14 @@ app.post("/urls/:id/edit", (req, res) => {
   const newLongURL = req.body.longURL;
   res.redirect("/urls"); // Redirect back to the URLs index page
 });
+
+app.post("/login", (req, res) => {
+  const { username } = req.body;            // implementing cookie username
+  res.cookie('username', username);
+  res.redirect("/urls");
+});
+
+
 
 // Routes
 app.get("/", (req, res) => {  //registers a handler on the root path, "/".
