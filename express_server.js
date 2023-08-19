@@ -30,10 +30,21 @@ app.post("/urls", (req, res) => {
   res.send("Ok"); // Respond with 'Ok' (we will replace this)
 });
 
-app.post("/urls/:id/delete", (req, res) => {      // code to implement a DELETE operation to remove existing shortened URLs
+app.post("/urls/:id/delete", (req, res) => {    // code to implement a DELETE operation to remove existing shortened URLs
   const shortURL = req.params.id;
   delete urlDatabase[shortURL];
   res.redirect("/urls");
+});
+
+app.post("/urls/:id", (req, res) => {         // implementing the redirect link after using "edit" button on localhost:8080/urls/
+  const shortURL = req.params.id;
+  res.redirect("/urls/" + shortURL);
+});
+
+app.post("/urls/:id/edit", (req, res) => {
+  const shortURL = req.params.id;
+  const newLongURL = req.body.longURL;
+  res.redirect("/urls"); // Redirect back to the URLs index page
 });
 
 // Routes
