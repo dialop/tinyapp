@@ -57,7 +57,7 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");
 });
 
-app.post("/logout", (req, res) => {
+app.post("/logout", (req, res) => {        // clear username cookie
   res.clearCookie('username');
   res.redirect("/urls");
 });
