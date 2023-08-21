@@ -34,10 +34,18 @@ function generateRandomString(length) {
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
     result += characters[randomIndex];
-    
   }
   return result;
+};
+
+//Error Email Condition
+function getUserByEmail(email) {
+  return  Object.values(users).find(user => user.email === email);
 }
+
+
+
+
 
 
 //Middleware
@@ -85,6 +93,15 @@ app.post("/logout", (req, res) => { // clear user_id cookie
 
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
+
+if(!email || !password ) {
+  res.status(400).send("Email and password must be entered")
+}
+
+if(getUserByEmail(email)) {
+  res.status(400).send("Email already exists");
+}
+
   const userid = generateRandomString();
   users[userid] = {
     id: userid,
