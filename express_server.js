@@ -27,7 +27,7 @@ const users = {
   },
 };
 
-function generateRandomString(length) {
+const generateRandomString = function(length) {
   const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let result = "";
   
@@ -39,9 +39,9 @@ function generateRandomString(length) {
 };
 
 //Error Email Condition
-function getUserByEmail(email) {
+const getUserByEmail = function(email) {
   return  Object.values(users).find(user => user.email === email);
-}
+};
 
 
 
@@ -82,7 +82,7 @@ app.post("/login", (req, res) => {
     res.cookie("user_id", user.id);
     res.redirect("/urls");
   } else {
-    res.status(403).send("Request Forbidden");
+    res.status(403).send("Cannot Authorize Request Email or Password Invalid");
   }
 });
 
@@ -94,13 +94,13 @@ app.post("/logout", (req, res) => { // clear user_id cookie
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
 
-if(!email || !password ) {
-  res.status(400).send("Email and password must be entered")
-}
+  if (!email || !password) {
+    res.status(400).send("Email and password must be entered");
+  }
 
-if(getUserByEmail(email)) {
-  res.status(400).send("Email already exists");
-}
+  if (getUserByEmail(email)) {
+    res.status(400).send("Email already exists");
+  }
 
   const userid = generateRandomString();
   users[userid] = {
@@ -181,11 +181,11 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/register", (req, res) => { //route for register endpoint to render register.ejs tempelate
-  res.render("register");
+  res.render("register", { user: req.cookies.user_id });
 });
 
 app.get("/login", (req, res) => {
-  res.render("login");            //route for /login enspoint to render login.ejs tempelate
+  res.render("login", { user: req.cookies.user_id });        //route for /login enspoint to render login.ejs tempelate
 });
 
 
