@@ -40,9 +40,8 @@ const generateRandomString = function(length) {
 
 //Error Email Condition
 const getUserByEmail = function(email) {
-  return  Object.values(users).find(user => user.email === email);
+  return Object.values(users).find(user => user.email === email);
 };
-
 
 
 
@@ -53,8 +52,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with "Ok" (we will replace this)
+  const user = users[req.cookies["user_id"]];
+
+  if (!user) {
+    res.status(403).send("You must be logged into shorten URL");  //repond with HTML message with code status restriction
+  } else {
+    console.log("req.body");
+    res.send("Ok");
+  }
 });
 
 app.post("/urls/:id/delete", (req, res) => {  // code to implement a DELETE operation to remove existing shortened URLs
@@ -143,11 +148,16 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const user = users[req.cookies["user_id"]];
-  const templateVars = {
-    user: user,
-  };
-  res.render("urls_new", templateVars);
+  const user = users[req.cookies["user_id"]]; //redirecting unautheenticated users
+  if (!user) {
+    res.redirect("/login");
+  } else {
+
+    const templateVars = {
+      user: user,
+    };
+    res.render("urls_new", templateVars);
+  }
 });
 
 app.get("/urls/:id", (req, res) => { // display the username, the short URL ID, and the associated long URL
@@ -166,7 +176,7 @@ app.get("/u/:id", (req, res) => { //code to implement short URL
   if (longURL) {
     res.redirect(longURL);
   } else {
-    res.statusCode(404).send("Short URL not found");
+    res.statusCode(404).send("<html><body>Short URL not found.</body></html>"); // HTML message to client when attempts to access a shortened URL that does not exist
   }
   
 });
@@ -185,10 +195,30 @@ app.get("/register", (req, res) => { //route for register endpoint to render reg
 });
 
 app.get("/login", (req, res) => {
-  res.render("login", { user: req.cookies.user_id });        //route for /login enspoint to render login.ejs tempelate
+  res.render("login", { user: req.cookies.user_id });  //route for /login enspoint to render login.ejs tempelate
 });
 
+app.get("/login", (req, res) => {   //redirecting when user logged in
+  const user = users[req.cookies["user_id"]];
 
+  if (user) {
+    res.redirect("/urls");
+    return;
+  }
 
+  res.render("login", {user: user});
+
+});
+
+app.get("/register", (req, res) => {   //rendering registration page
+  const user = users[req.cookies["user_id"]];
+
+  if (user) {
+    res.redirect("/urls");
+    return;
+  }
+
+  res.render("login", {user: user});
+});
 
 
