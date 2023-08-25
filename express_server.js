@@ -9,6 +9,7 @@ const app = express();
 const bcrypt = require("bcryptjs");
 const cookieSession = require("cookie-session");
 const { getUserByEmail, urlsForUser, generateRandomString } = require("./helpers");
+const { users, urlDatabase } = require("./database");
 
 
 // -------------------- MIDDLEWARE ---------------- //
@@ -20,33 +21,6 @@ app.use(cookieSession({
   keys: ["secret_key_for_encryption"],
   maxAge: 24 * 60 * 60 * 1000
 }));
-
-// -------------------- DATA STRUCTURE --------------------- //
-
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "aJ48lW",
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "aJ48lW",
-  },
-};
-
-// --- Registering New Users --- //
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
-};
 
 // -------------------- GET ROUTE HANDLERS -------------------- //
 
@@ -175,7 +149,7 @@ app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
 
   if (!longURL) {
-    return res.status(404).send("URL cannot be empty");
+    return res.status(404).send("URL cannot be empty")
   }
 
   const shortURL = generateRandomString(6);
@@ -226,7 +200,7 @@ app.post("/urls/:id", (req, res) => {
   return res.redirect("/urls");
 });
 
-// --- Request to login, if successful login redirects client to URLs page. If failed login, satus code 403 --- //
+// --- Request to login, if successful login redirects client to URLs page. If failed login, status code --- //
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const user = getUserByEmail(email, users);
