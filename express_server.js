@@ -51,7 +51,12 @@ const users = {
 // -------------------- GET ROUTE HANDLERS -------------------- //
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  const user = users[req.session.userId];
+  if (!user) {
+    res.redirect("/login");
+  } else {
+    res.redirect("/urls");
+  }
 });
 
 // --- Temorary JSON string representing the entire urlDatabase object --- //
@@ -98,9 +103,9 @@ app.get("/urls/:id", (req, res) => {
   const user = users[req.session.userId];
   
   if (!user) {
-    res.render("login");
+    res.redirect("/login");
   } else if (!urlDatabase[shortURL] || urlDatabase[shortURL].userID !== user.id) {
-    res.render("login");
+    res.status(403).send("You are not authorized to edit this URL.");
   } else {
     const templateVars = {
       id: shortURL,
@@ -117,7 +122,7 @@ app.get("/u/:id", (req, res) => {
   const urlEntry = urlDatabase[shortURL];
   
   if (urlEntry) {
-    res.redirect(urlEntry.longURL);
+    res.redirect(`https://www.` + urlDatabase[shortURL].longURL);
   } else {
     res.status(404).send("<html><body>Short URL not found.</body></html>");
   }
@@ -171,17 +176,18 @@ app.get("/register", (req, res) => {
 // --- Request to generate random URL, if not logged in, sends error, if logged in sends "Ok" when URL successfully created  --- //
 app.post("/urls", (req, res) => {
   const user = users[req.session.userId];
-  const longURL = req.body.longURL;
-
+  
   if (!user) {
     res.status(403).send("You must be logged in to shorten URL.");
   } else {
+    const longURL = req.body.longURL;
     const shortURL = generateRandomString(6);
+
     urlDatabase[shortURL] = {
       longURL: longURL,
       userID: user.id
     };
-    res.send("Ok");
+    res.redirect("/urls");
   }
 });
 
@@ -203,25 +209,13 @@ app.post("/urls/:id/delete", (req, res) => {
 // --- Route to redirect client if after clicking "edit" button. If not a logged in, send error --- //
 app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
-  const user = users[req.session.userId];
-
-  if (!user) {
-    res.status(403).send("You need to log in to edit URLs.");
-  } else if (urlDatabase[shortURL].userID !== user.id) {
-    res.status(403).send("You are not authorized to edit this URL.");
-  } else {
-    res.redirect("/urls/" + shortURL);
-  }
-});
-
-// --- Request to edit the newly made URL created by the owner, if not the owner of URL send error 403 --- //
-app.post("/urls/:id/edit", (req, res) => {
-  const shortURL = req.params.id;
   const newLongURL = req.body.longURL;
   const user = users[req.session.userId];
 
   if (!user) {
     res.status(403).send("You need to log in to edit URLs.");
+  } else if (!urlDatabase[shortURL]) {
+    res.status(404).send("The URL you are trying to edit does not exist.");
   } else if (urlDatabase[shortURL].userID !== user.id) {
     res.status(403).send("You are not authorized to edit this URL.");
   } else {
@@ -229,6 +223,21 @@ app.post("/urls/:id/edit", (req, res) => {
     res.redirect("/urls");
   }
 });
+
+// // --- Request to edit the newly made URL created by the owner, if not the owner of URL send error 403 --- //
+// app.post("/urls/:id", (req, res) => {
+//   const shortURL = req.params.id;
+//   const newLongURL = req.body.longURL;
+//   const user = users[req.session.userId];
+
+//   if (!user) {
+//     res.status(403).send("You need to log in to edit URLs.");
+//   } else if (urlDatabase[shortURL].userID !== user.id) {
+//     res.status(403).send("You are not authorized to edit this URL.");
+//   } else {
+
+//   }
+// });
 
 // --- Request to login, if successful login redirects client to URLs page. If failed login, satus code 403 --- //
 app.post("/login", (req, res) => {
