@@ -50,70 +50,66 @@ const users = {
 
 // -------------------- GET ROUTE HANDLERS -------------------- //
 
+// --- Redirect root path to login or URLs page --- //
 app.get("/", (req, res) => {
   const user = users[req.session.userId];
   if (!user) {
-    res.redirect("/login");
-  } else {
-    res.redirect("/urls");
+    return res.redirect("/login");
   }
+  return res.redirect("/urls");
 });
-
-// --- Temorary JSON string representing the entire urlDatabase object --- //
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 
 // --- Renders Main Page --- //
 app.get("/urls", (req, res) => {
   const user = users[req.session.userId];
   if (!user) {
-    res.redirect("/login");
-  } else {
-    const templateVars = {
-      user: user,
-      urls: urlDatabase,
-    };
-    res.render("urls_index", templateVars);
+    return res.redirect("/login");
   }
+  const templateVars = {
+    user: user,
+    urls: urlDatabase,
+  };
+  return res.render("urls_index", templateVars);
 });
 
 // --- Renders page to create a new URL if not logged in, redirects to login page --- //
 app.get("/urls/new", (req, res) => {
   const user = users[req.session.userId];
   if (!user) {
-    res.redirect("/login");
-  } else {
-    
-    const templateVars = {
-      user: user,
-    };
-    res.render("urls_new", templateVars);
+    return res.redirect("/login");
   }
+    
+  const templateVars = {
+    user: user,
+  };
+  res.render("urls_new", templateVars);
 });
 
 // ---  Route used to display URL details, including the long URL associated with a short URL --- //
 app.get("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
   const user = users[req.session.userId];
-  
+
   if (!user) {
-    res.redirect("/login");
-  } else if (!urlDatabase[shortURL] || urlDatabase[shortURL].userID !== user.id) {
-    res.status(403).send("You are not authorized to edit this URL.");
-  } else {
-    const templateVars = {
-      id: shortURL,
-      longURL: urlDatabase[shortURL].longURL,
-      user: user,
-    };
-    res.render("urls_show", templateVars);
+    return res.redirect("/login");
   }
+
+  const urlEntry = urlDatabase[shortURL];
+  if (!urlEntry) {
+    return res.status(404).send("The URL you are trying to access does not exist.");
+  }
+
+  if (urlEntry.userID !== user.id) {
+    return res.status(403).send("You are not authorized to edit this URL.");
+  }
+
+  const templateVars = {
+    id: shortURL,
+    longURL: urlEntry.longURL,
+    user: user,
+  };
+
+  return res.render("urls_show", templateVars);
 });
 
 // --- Route to implementation of short URL and HTML message to client when attempts to access a shortened URL that does not exist --- //
@@ -121,12 +117,10 @@ app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
   const urlEntry = urlDatabase[shortURL];
   
-  if (urlEntry) {
-    res.redirect(`https://www.` + urlDatabase[shortURL].longURL);
-  } else {
-    res.status(404).send("<html><body>Short URL not found.</body></html>");
+  if (!urlEntry) {
+    return res.redirect(`https://www.` + urlDatabase[shortURL].longURL);
   }
-  
+  return res.status(404).send("<html><body>Short URL not found.</body></html>");
 });
 
 // --- Route to identify if user is logged in and displays their URLs or redirects to the login page --- //
@@ -134,15 +128,14 @@ app.get("/urls", (req, res) => {
   const user = users[req.session.userId];
     
   if (!user) {
-    res.render("login");
-  } else {
-    const userURLs = urlsForUser(user.id);
-    const templateVars = {
-      user: user,
-      urls: userURLs,
-    };
-    res.render("urls_index", templateVars);
+    return res.render("/login");
   }
+  const userURLs = urlsForUser(user.id);
+  const templateVars = {
+    user: user,
+    urls: userURLs,
+  };
+  res.render("urls_index", templateVars);
 });
 
 // --- Renders the Login Page --- //
@@ -172,23 +165,21 @@ app.get("/register", (req, res) => {
 
 // -------------------- POST ROUTE HANDLERS -------------------- //
 
-
 // --- Request to generate random URL, if not logged in, sends error, if logged in sends "Ok" when URL successfully created  --- //
 app.post("/urls", (req, res) => {
   const user = users[req.session.userId];
   
   if (!user) {
-    res.status(403).send("You must be logged in to shorten URL.");
-  } else {
-    const longURL = req.body.longURL;
-    const shortURL = generateRandomString(6);
-
-    urlDatabase[shortURL] = {
-      longURL: longURL,
-      userID: user.id
-    };
-    res.redirect("/urls");
+    return res.status(403).send("You must be logged in to shorten URL.");
   }
+  const longURL = req.body.longURL;
+  const shortURL = generateRandomString(6);
+
+  urlDatabase[shortURL] = {
+    longURL: longURL,
+    userID: user.id
+  };
+  res.redirect("/urls");
 });
 
 // --- Request to delete a created URL if the owner of the URL --- //
@@ -197,13 +188,17 @@ app.post("/urls/:id/delete", (req, res) => {
   const user = users[req.session.userId];
 
   if (!user) {
-    res.status(403).send("You need to log in to delete URLs.");
-  } else if (urlDatabase[shortURL].userID !== user.id) {
-    res.status(403).send("You are not authorized to delete this URL.");
-  } else {
-    delete urlDatabase[shortURL];
-    res.redirect("/urls");
+    return res.status(403).send("You need to log in to delete URLs.");
   }
+  const urlEntry = urlDatabase[shortURL];
+  if (!urlEntry) {
+    return res.status(404).send("The URL you are trying to delete does not exist.");
+  }
+  if (urlEntry.userID !== user.id) {
+    return res.status(403).send("You are not authorized to delete this URL.");
+  }
+  delete urlDatabase[shortURL];
+  res.redirect("/urls");
 });
 
 // --- Route to redirect client if after clicking "edit" button. If not a logged in, send error --- //
@@ -213,15 +208,17 @@ app.post("/urls/:id", (req, res) => {
   const user = users[req.session.userId];
 
   if (!user) {
-    res.status(403).send("You need to log in to edit URLs.");
-  } else if (!urlDatabase[shortURL]) {
-    res.status(404).send("The URL you are trying to edit does not exist.");
-  } else if (urlDatabase[shortURL].userID !== user.id) {
-    res.status(403).send("You are not authorized to edit this URL.");
-  } else {
-    urlDatabase[shortURL].longURL = newLongURL;
-    res.redirect("/urls");
+    return res.status(403).send("You need to log in to edit URLs.");
   }
+  const urlEntry = urlDatabase[shortURL];
+  if (!urlEntry) {
+    return res.status(404).send("The URL you are trying to edit does not exist.");
+  }
+  if (urlEntry.userID !== user.id) {
+    return res.status(403).send("You are not authorized to edit this URL.");
+  }
+  urlEntry.longURL = newLongURL;
+  return res.redirect("/urls");
 });
 
 // --- Request to login, if successful login redirects client to URLs page. If failed login, satus code 403 --- //
@@ -229,13 +226,14 @@ app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const user = getUserByEmail(email, users);
 
-  if (user && bcrypt.compareSync(password, user.password)) {
-    req.session.userId = user.id;
-    res.redirect("/urls");
-  } else {
-    res.status(403).send("Unable to Authorize! Email or Password Invalid.");
+  if (!user || !bcrypt.compareSync(password, user.password)) {
+    return res.status(403).send("Unable to Authorize! Email or Password Invalid.");
   }
+  
+  req.session.userId = user.id;
+  return res.redirect("/urls");
 });
+
 
 // --- Request to logout client and clear session ccokies and redirects to login --- //
 app.post("/logout", (req, res) => {
