@@ -26,9 +26,9 @@
             <td><%= id %></td>
             <td><%= urls[id].longURL %></td>
             <td>
-              <form method="POST" action="/urls/<%= id %>">
+              <a href="/urls/<%= id %>">
                 <button type="submit" style="color: #093adb; font-size: 17px; border-color: #093adb; border-radius: 10%; background-color: white; border: 1px solid; padding: 8px; padding-inline: 12px;">Edit</button>
-              </form>
+              </a>
             </td>
             <td>
               <form method="POST" action="/urls/<%= id %>/Delete">
