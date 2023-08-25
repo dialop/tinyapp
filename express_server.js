@@ -224,21 +224,6 @@ app.post("/urls/:id", (req, res) => {
   }
 });
 
-// // --- Request to edit the newly made URL created by the owner, if not the owner of URL send error 403 --- //
-// app.post("/urls/:id", (req, res) => {
-//   const shortURL = req.params.id;
-//   const newLongURL = req.body.longURL;
-//   const user = users[req.session.userId];
-
-//   if (!user) {
-//     res.status(403).send("You need to log in to edit URLs.");
-//   } else if (urlDatabase[shortURL].userID !== user.id) {
-//     res.status(403).send("You are not authorized to edit this URL.");
-//   } else {
-
-//   }
-// });
-
 // --- Request to login, if successful login redirects client to URLs page. If failed login, satus code 403 --- //
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
