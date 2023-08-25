@@ -22,7 +22,7 @@
           <form method="POST" action="/logout">
             <button type="submit" style="color: black; font-size: 17px; border-radius: 10%; background-color: transparent; border: 1px solid; padding: 8px; padding-inline: 12px;">Logout</button>
           </form>
-          <p class="logged-in-message">Logged in as: <%= user.email %>!</p>
+          <p class="logged-in-message" style="margin-block: auto; margin: 10px;">Logged in as: <%= user.email %>!</p>
         <% } else { %>
           <a class="nav-item nav-link" href="/register">Register</a>
           <a class="nav-item nav-link" href="/login">Login</a>
