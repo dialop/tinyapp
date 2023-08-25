@@ -165,7 +165,7 @@ app.get("/register", (req, res) => {
 
 // -------------------- POST ROUTE HANDLERS -------------------- //
 
-// --- Request to generate random URL, if not logged in, sends error, if logged in sends "Ok" when URL successfully created  --- //
+// --- Request to generate random URL, if not logged in, sends error, if logged in redirects to added list of user's URLs, if URL empty, send error --- //
 app.post("/urls", (req, res) => {
   const user = users[req.session.userId];
   
@@ -173,6 +173,11 @@ app.post("/urls", (req, res) => {
     return res.status(403).send("You must be logged in to shorten URL.");
   }
   const longURL = req.body.longURL;
+
+  if (!longURL) {
+    return res.status(404).send("URL cannot be empty");
+  }
+
   const shortURL = generateRandomString(6);
 
   urlDatabase[shortURL] = {
