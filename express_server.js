@@ -211,9 +211,11 @@ app.post("/login", (req, res) => {
   return res.redirect("/urls");
 });
 
-// --- Request to logout client and clear session ccokies and redirects to login --- //
+// --- Request to logout client and clear session cokies and redirects to login --- //
 app.post("/logout", (req, res) => {
-  req.session = null;
+
+  req.session.userId = null;
+
   res.redirect("/login");
 });
 
