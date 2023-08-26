@@ -39,9 +39,10 @@ app.get("/urls", (req, res) => {
   if (!user) {
     return res.status(401).send("You must be logged in to view this page.");
   }
+  const userURLs = urlsForUser(user.id, urlDatabase);
   const templateVars = {
     user: user,
-    urls: urlDatabase,
+    urls: userURLs,
   };
   return res.render("urls_index", templateVars);
 });
@@ -92,24 +93,21 @@ app.get("/u/:id", (req, res) => {
   const urlEntry = urlDatabase[shortURL];
   
   if (urlEntry) {
-    return res.redirect(`https://www.` + urlDatabase[shortURL].longURL);
-  }
-  return res.status(404).send("<html><body>Short URL not found.</body></html>");
-});
+    const longURL = urlEntry.longURL;
 
-// --- Route to identify if user is logged in and displays their URLs or redirects to the login page --- //
-app.get("/urls", (req, res) => {
-  const user = users[req.session.userId];
-    
-  if (!user) {
-    return res.render("/login");
+    // Check if the long URL starts with http:// or https://
+    if (!longURL.startsWith("http://") && !longURL.startsWith("https://")) {
+      // If not, assume http:// as default
+      return res.redirect(`http://${longURL}`);
+    }
+
+    // If the long URL includes www., remove it
+    const cleanURL = longURL.replace("www.", "");
+
+    return res.redirect(cleanURL);
   }
-  const userURLs = urlsForUser(user.id);
-  const templateVars = {
-    user: user,
-    urls: userURLs,
-  };
-  res.render("urls_index", templateVars);
+
+  return res.status(404).send("<html><body>Short URL not found.</body></html>");
 });
 
 // --- Renders the Login Page --- //
@@ -206,7 +204,7 @@ app.post("/login", (req, res) => {
   const user = getUserByEmail(email, users);
 
   if (!user || !bcrypt.compareSync(password, user.password)) {
-    return res.status(403).send("Unable to Authorize! Email or Password Invalid.");
+    return res.status(404).send("Invalid email or password!");
   }
   
   req.session.userId = user.id;
@@ -230,18 +228,18 @@ app.post("/register", (req, res) => {
     res.status(400).send("Email already exists.");
   }
 
-  const userid = generateRandomString(6);
+  const uID = generateRandomString(6);
 
   // --- Converts the plain-text password to a string using salt --- //
   const hashedPassword = bcrypt.hashSync(password, 10);
 
-  users[userid] = {
-    id: userid,
+  users[uID] = {
+    id: uID,
     email: email,
     password: hashedPassword
   };
 
-  req.session.userId = userid;
+  req.session.userId = uID;
   res.redirect("/urls");
 });
 
