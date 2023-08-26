@@ -37,7 +37,7 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const user = users[req.session.userId];
   if (!user) {
-    return res.redirect("/login");
+    return res.status(401).send("You must be logged in to view this page.");
   }
   const templateVars = {
     user: user,
@@ -91,7 +91,7 @@ app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
   const urlEntry = urlDatabase[shortURL];
   
-  if (!urlEntry) {
+  if (urlEntry) {
     return res.redirect(`https://www.` + urlDatabase[shortURL].longURL);
   }
   return res.status(404).send("<html><body>Short URL not found.</body></html>");
@@ -144,12 +144,12 @@ app.post("/urls", (req, res) => {
   const user = users[req.session.userId];
   
   if (!user) {
-    return res.status(403).send("You must be logged in to shorten URL.");
+    return res.status(401).send("You must be logged in to shorten URL.");
   }
   const longURL = req.body.longURL;
 
   if (!longURL) {
-    return res.status(404).send("URL cannot be empty")
+    return res.status(400).send("URL cannot be empty");
   }
 
   const shortURL = generateRandomString(6);
@@ -158,7 +158,7 @@ app.post("/urls", (req, res) => {
     longURL: longURL,
     userID: user.id
   };
-  res.redirect("/urls");
+  res.redirect(`/urls/${shortURL}`); // Redirect to the newly created URL page
 });
 
 // --- Request to delete a created URL if the owner of the URL --- //
@@ -213,7 +213,6 @@ app.post("/login", (req, res) => {
   return res.redirect("/urls");
 });
 
-
 // --- Request to logout client and clear session ccokies and redirects to login --- //
 app.post("/logout", (req, res) => {
   req.session = null;
@@ -231,7 +230,7 @@ app.post("/register", (req, res) => {
     res.status(400).send("Email already exists.");
   }
 
-  const userid = generateRandomString();
+  const userid = generateRandomString(6);
 
   // --- Converts the plain-text password to a string using salt --- //
   const hashedPassword = bcrypt.hashSync(password, 10);
